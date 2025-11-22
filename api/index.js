@@ -15,6 +15,8 @@ const card_types = [
   "Visa"
 ]
 
+console.log(process.env.TYPE);
+
 
 const app = express()
 app.use(cors())
