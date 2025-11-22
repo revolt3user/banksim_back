@@ -7,6 +7,7 @@ import TokenManager from "./tools/TokenManager.js";
 import Usuario from "./models/Usuario.js";
 import Wallet from "./models/Wallet.js";
 import { generateFakeCard } from "./tools/fakeCardData.js";
+import TransactionCard from "./models/TransactionCard.js";
 
 const card_types = [
   "Corriente",
@@ -156,5 +157,53 @@ app.post('/api/account/deleteWallets', auth, async (req, res) => {
   }
 });
 
+app.post('/api/account/transaction', auth, async (req, res) => {
+  try {
+    const { 
+      wallet_number_of,
+      wallet_number_for, 
+      amount_transfer 
+    } = req.body;
+    if (wallet_number_of==null) throw new Error("false");
+    if (wallet_number_for==null) throw new Error("false");
+    if (amount_transfer==null) throw new Error("false");
+    await AppDataSource.initialize();
+
+    const usuarioRepo = AppDataSource.getRepository(Usuario);
+    const usuario = await usuarioRepo.findOneBy({ id_usuario: req.dataToken.id_usuario });
+    if (!usuario) throw new Error("El usuario no existe");
+    
+    const WalletRepo = AppDataSource.getRepository(Wallet);
+    
+    const wallet_of = await WalletRepo.findOneBy({ 
+      id_usuario: usuario.id_usuario,
+      card_number: wallet_number_of,
+    });
+
+    const wallet_for = await WalletRepo.findOneBy({ 
+      card_number: wallet_number_for,
+    });
+  
+    const TransactionCardRepo = AppDataSource.getRepository(TransactionCard);
+    
+    // const TransactionsCard = await TransactionCardRepo.find({
+    //   where: { id_usuario: parseInt(req.dataToken.id_usuario) },
+    //   order: { id_usuario: "DESC" }
+    // });
+
+    const transactionCard = TransactionCardRepo.create({
+        id_wallet_of: wallet_of.id_wallet,
+        id_wallet_for: wallet_for.id_wallet,
+        amount_transfer: parseFloat(amount_transfer)
+    });
+
+    const result = await TransactionCardRepo.save(transactionCard);
+    
+    return res.json({ success: true, msg: 'ok' })
+  } catch (error) {
+    console.log(error.message);
+    return res.json({ success: false, msg: "error" })
+  }
+});
 
 export default app

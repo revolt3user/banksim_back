@@ -9,12 +9,12 @@ export default new EntitySchema({
             type: "int",
             generated: true,
         },
-        id_wallet_send: {
+        id_wallet_of: {
             type: "int",
             unique: false,
             nullable: false
         },
-        id_wallet_receiver: {
+        id_wallet_for: {
             type: "int",
             unique: false,
             nullable: false

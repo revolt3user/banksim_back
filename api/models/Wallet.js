@@ -16,12 +16,12 @@ export default new EntitySchema({
     },
     card_number: {
       type: "varchar",
-      unique: false,
+      unique: true,
       nullable: true
     },
     card_cvv: {
       type: "varchar",
-      unique: false,
+      unique: true,
       nullable: true
     },
     card_expiration_date: {
