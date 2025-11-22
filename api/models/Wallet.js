@@ -34,5 +34,13 @@ export default new EntitySchema({
       unique: false,
       nullable: true
     },
+    balance: {
+        type: "numeric",
+        precision: 15,      // números totales
+        scale: 2,           // decimales
+        nullable: true,
+        unique: false,
+        default:0
+    },
   }
 });

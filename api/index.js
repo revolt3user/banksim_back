@@ -135,7 +135,7 @@ app.get('/api/account/getWallets', auth, async (req, res) => {
     });
     return res.json({ success: true, msg: 'ok', Wallets: wallets })
   } catch (error) {
-    console.log(error.message);
+    console.error(error)
     return res.json({ success: false, msg: "error" })
   }
 });
@@ -157,7 +157,50 @@ app.post('/api/account/deleteWallets', auth, async (req, res) => {
   }
 });
 
+
+app.post('/api/account/adminTransaction', auth, async (req, res) => {
+  console.clear();
+  
+  try {
+     const { 
+      wallet,
+      amount_transfer, 
+    } = req.body;
+    if (wallet==null) throw new Error("false");
+    if (amount_transfer==null) throw new Error("false");
+    await AppDataSource.initialize();
+    
+    const usuarioRepo = AppDataSource.getRepository(Usuario);
+    const usuario = await usuarioRepo.findOneBy({ id_usuario: req.dataToken.id_usuario });
+    if (!usuario) throw new Error("El usuario no existe");
+    if (!usuario.isAdmin) throw new Error("Acceso denegado");
+    
+    const WalletRepo = AppDataSource.getRepository(Wallet);
+    const wallet_for = await WalletRepo.findOneBy({ 
+      id_usuario: usuario.id_usuario,
+      card_number: wallet,
+    });
+
+    const TransactionCardRepo = AppDataSource.getRepository(TransactionCard);
+  
+    const transactionCard = TransactionCardRepo.create({
+        id_wallet_of: 0,
+        id_wallet_for: parseInt(wallet_for.id_wallet),
+        amount_transfer: parseFloat(amount_transfer)
+    });
+
+    const result = await TransactionCardRepo.save(transactionCard);
+
+    return res.json({ success: true, message: 'ok', result })
+  } catch (error) {
+    console.log(error.message);
+    return res.json({ success: false, msg: "error" })
+  }
+});
+
+
 app.post('/api/account/transaction', auth, async (req, res) => {
+  console.clear()
   try {
     const { 
       wallet_number_of,
@@ -169,6 +212,7 @@ app.post('/api/account/transaction', auth, async (req, res) => {
     if (amount_transfer==null) throw new Error("false");
     await AppDataSource.initialize();
 
+    
     const usuarioRepo = AppDataSource.getRepository(Usuario);
     const usuario = await usuarioRepo.findOneBy({ id_usuario: req.dataToken.id_usuario });
     if (!usuario) throw new Error("El usuario no existe");
@@ -183,14 +227,9 @@ app.post('/api/account/transaction', auth, async (req, res) => {
     const wallet_for = await WalletRepo.findOneBy({ 
       card_number: wallet_number_for,
     });
-  
-    const TransactionCardRepo = AppDataSource.getRepository(TransactionCard);
     
-    // const TransactionsCard = await TransactionCardRepo.find({
-    //   where: { id_usuario: parseInt(req.dataToken.id_usuario) },
-    //   order: { id_usuario: "DESC" }
-    // });
-
+    const TransactionCardRepo = AppDataSource.getRepository(TransactionCard);
+  
     const transactionCard = TransactionCardRepo.create({
         id_wallet_of: wallet_of.id_wallet,
         id_wallet_for: wallet_for.id_wallet,
@@ -199,7 +238,7 @@ app.post('/api/account/transaction', auth, async (req, res) => {
 
     const result = await TransactionCardRepo.save(transactionCard);
     
-    return res.json({ success: true, msg: 'ok' })
+    return res.json({ success: true, msg: 'ok', result })
   } catch (error) {
     console.log(error.message);
     return res.json({ success: false, msg: "error" })
