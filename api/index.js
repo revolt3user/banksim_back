@@ -224,12 +224,16 @@ app.post('/api/account/transaction', auth, async (req, res) => {
       card_number: wallet_number_of,
     });
 
+    if (!wallet_of) throw new Error("Wallet invalida");
+    
     const wallet_for = await WalletRepo.findOneBy({ 
       card_number: wallet_number_for,
     });
+
+    if (!wallet_for) throw new Error("Wallet inexistente");
     
     const TransactionCardRepo = AppDataSource.getRepository(TransactionCard);
-  
+
     const transactionCard = TransactionCardRepo.create({
         id_wallet_of: wallet_of.id_wallet,
         id_wallet_for: wallet_for.id_wallet,
@@ -241,7 +245,7 @@ app.post('/api/account/transaction', auth, async (req, res) => {
     return res.json({ success: true, msg: 'ok', result })
   } catch (error) {
     console.log(error.message);
-    return res.json({ success: false, msg: "error" })
+    return res.json({ success: false, msg: error.message })
   }
 });
 

@@ -9,6 +9,18 @@ export default new EntitySchema({
             type: "int",
             generated: true,
         },
+        concept: {
+            type: "varchar",
+            unique: false,
+            nullable: true,
+            default:"natural"
+        },
+        description: {
+            type: "varchar",
+            unique: false,
+            nullable: true,
+            default:""
+        },
         id_wallet_of: {
             type: "int",
             unique: false,
