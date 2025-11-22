@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import Usuario from "./models/Usuario.js";
 import Wallet from "./models/Wallet.js";
+import TransactionCard from "./models/TransactionCard.js";
 
 const AppDataSource = new DataSource({
   type: process.env.TYPE,
@@ -11,7 +12,7 @@ const AppDataSource = new DataSource({
   database: process.env.DATABASE,
   synchronize: true,
   logging: false,
-  entities: [Usuario, Wallet],
+  entities: [Usuario, Wallet, TransactionCard],
   extra: {
     ssl: {
       rejectUnauthorized: true,
